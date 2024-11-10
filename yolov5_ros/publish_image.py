@@ -72,7 +72,7 @@ def main(args=None):
     
     # Parameters
     source = 'folder'  # 'folder' or 'webcam'
-    image_folder = '/home/sasuke/Projects/yolov5/datasets/pallets_given/'  # Only needed if source is 'folder'
+    image_folder = '/home/sasuke/Projects/yolov5/datasets/pallets/test/images/'  # Only needed if source is 'folder'
     publish_rate = 1.0  # Frequency in Hz
 
     # Initialize the node with the specified source

@@ -43,11 +43,12 @@ from utils.torch_utils import select_device, smart_inference_mode
 from utils.augmentations import letterbox
 
 class YOLOv5():
-    def __init__(self, weight_file, data_file):
+    def __init__(self, weight_file, data_file, show_bbox):
         self.weights = weight_file
         self.data = data_file
+        self.show_bbox = show_bbox
         self.imgsz = (640, 640)
-        self.conf_thres = 0.25
+        self.conf_thres = 0.30
         self.iou_thres = 0.45
         self.max_det = 1000
         self.augment = False
@@ -107,10 +108,11 @@ class YOLOv5():
                     im_gpu=im[i]
                 )
 
-                for j, (*xyxy, conf, cls) in enumerate(reversed(det[:, :6])):
-                    c = int(cls)  # integer class
-                    label = f"{self.names[c]} {conf:.2f}"
-                    annotator.box_label(xyxy, label, color=colors(c, True))
+                if self.show_bbox:
+                    for j, (*xyxy, conf, cls) in enumerate(reversed(det[:, :6])):
+                        c = int(cls)  # integer class
+                        label = f"{self.names[c]} {conf:.2f}"
+                        annotator.box_label(xyxy, label, color=colors(c, True))
             
             im0 = annotator.result()
             cv2.imshow('window', im0)
@@ -125,16 +127,18 @@ class YOLOv5Node(Node):
 
         self.declare_parameter('weight_file', rclpy.Parameter.Type.STRING)
         self.declare_parameter('data_file', rclpy.Parameter.Type.STRING)
+        self.declare_parameter('show_bbox', rclpy.Parameter.Type.BOOL)
 
         weight_file = self.get_parameter('weight_file')
         data_file = self.get_parameter('data_file')
+        show_bbox = self.get_parameter('show_bbox')
         
         self.bridge = CvBridge()
 
         self.sub_image = self.create_subscription(Image, 'image_raw', self.image_callback,10)
         self.pub_image = self.create_publisher(Image, 'yolov5/pred', 10)
 
-        self.yolov5 = YOLOv5(str(weight_file.value), str(data_file.value))
+        self.yolov5 = YOLOv5(str(weight_file.value), str(data_file.value), bool(show_bbox.value))
 
     def image_callback(self, image):
         image_raw = self.bridge.imgmsg_to_cv2(image, "bgr8")
