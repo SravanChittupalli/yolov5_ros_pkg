@@ -1,0 +1,14 @@
+path: /home/sravanc/Projects/yolov5/datasets/pallets/
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 2
+names: ['pallet', 'ground']
+
+roboflow:
+  workspace: convcoco2yolo
+  project: all_data_train
+  version: 5
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/convcoco2yolo/all_data_train/dataset/5
